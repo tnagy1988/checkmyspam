@@ -9,7 +9,7 @@ IMAP_PORT = 993
 EMAIL_ADDRESS = 'toster1337@net.hr'
 PASSWORD = 'Toster123456789'
 
-def process_spam_emails():
+def process_emails():
     # Connect to the IMAP server
     mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
 
@@ -19,8 +19,8 @@ def process_spam_emails():
     # Select the mailbox (inbox by default)
     mail.select()
 
-    # Search for all emails
-    _, data = mail.search(None, 'ALL')
+    # Search for unread emails with the specified subject
+    _, data = mail.search(None, 'UNSEEN')
 
     # Get a list of email IDs
     email_ids = data[0].split()
@@ -36,23 +36,21 @@ def process_spam_emails():
         # Extract the email subject
         subject = email_message['Subject']
 
-        if "OVO JE SPAM" in subject:
+        if "SPAM" in subject:
             print('Subject:', subject)
-
-            # Extract the sender email address
             sender_email = email.utils.parseaddr(email_message['From'])[1]
             print('Sender Email:', sender_email)
-
             print('------------------------------------')
-
             # Delete the email
             mail.store(email_id, '+FLAGS', '\\Deleted')
-
+        else:
+            # Set the email as unread
+            mail.store(email_id, '-FLAGS', '\\Seen')
     # Permanently remove deleted emails from the mailbox
     mail.expunge()
 
     # Logout from the email account
     mail.logout()
 
-# Call the function to process spam emails
-process_spam_emails()
+# Call the function to process emails
+process_emails()
