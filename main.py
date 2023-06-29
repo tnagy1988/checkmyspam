@@ -1,5 +1,7 @@
 import imaplib
 import email
+# import ipaddress
+import tldextract
 
 # IMAP server details for net.hr
 IMAP_SERVER = 'imap.net.hr'
@@ -36,18 +38,54 @@ def process_emails():
         # Extract the email subject
         subject = email_message['Subject']
 
-        if "SPAM" in subject:
+        sender_email = email.utils.parseaddr(email_message['From'])[1]
+
+        # Extract the sender domain from the sender email address
+        sender_domain = sender_email.split('@')[-1]
+
+        # Extract the TLD (top-level domain) from the sender domain
+        tld = tldextract.extract(sender_domain).suffix
+        
+        spf_header = email_message.get('Received-SPF')
+        
+        geolocation = email_message.get('X-GEO')
+
+        if subject == 'NOOB' or tld == 'ru':
+
+            # Extract the client IP from the headers
+            # client_ip = email_message.get('Client-Ip')
+
+            # Extract the SPF information if available
+            
+            # client_ip = ''
+            # if spf_header:
+            #     spf_fields = spf_header.split(';')
+            #     for field in spf_fields:
+            #         if 'client-ip=' in field:
+            #             client_ip = field.split('=')[1].strip()
+
+            # Extract the geolocation if available
+            
+
             print('Subject:', subject)
-            sender_email = email.utils.parseaddr(email_message['From'])[1]
             print('Sender Email:', sender_email)
+            # print('Client-Ip', client_ip)
+            print('TLD:', tld)
+            print('Geolocation:', geolocation)
+            print('SPF:', spf_header)
             print('------------------------------------')
+
+
+            # Move the email to the "NEMOZE" folder
+            # mail.copy(email_id, 'NEMOZE')
+
             # Delete the email
-            mail.store(email_id, '+FLAGS', '\\Deleted')
+            # mail.store(email_id, '+FLAGS', '\\Deleted')
         else:
             # Set the email as unread
             mail.store(email_id, '-FLAGS', '\\Seen')
     # Permanently remove deleted emails from the mailbox
-    mail.expunge()
+    # mail.expunge()
 
     # Logout from the email account
     mail.logout()
