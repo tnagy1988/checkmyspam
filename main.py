@@ -35,13 +35,8 @@ def process_emails():
         _, email_data = mail.fetch(email_id, '(RFC822)')
         raw_email = email_data[0][1].decode('utf-8')
 
-        # print(raw_email)
-
         # Parse the email object
         email_message = email.message_from_string(raw_email)
-
-        # Extract the email subject
-        subject = email_message['Subject']
 
         sender_email = email.utils.parseaddr(email_message['From'])[1]
 
@@ -51,9 +46,8 @@ def process_emails():
         # Extract the TLD (top-level domain) from the sender domain
         tld = tldextract.extract(sender_domain).suffix
 
+        # Extract the SPF header
         spf_header = email_message.get('Received-SPF')
-
-        geolocation = email_message.get('X-GEO')
 
         if spf_header and not 'Pass' in spf_header or tld in BLACKLISTED:
             try:
@@ -66,8 +60,6 @@ def process_emails():
                 msg['From'] = sender_email
                 msg['To'] = receiver_email
                 smtp = smtplib.SMTP('smtp.freesmtpservers.com', 25)
-                # smtp.starttls()
-                # smtp.login(EMAIL_ADDRESS, PASSWORD)
                 smtp.sendmail(sender_email, receiver_email, str(msg))
                 smtp.quit()
                 print("Email sent successfully")
@@ -75,12 +67,13 @@ def process_emails():
                 print("Error sending email:", str(e))
 
             # Delete the email
-            # mail.store(email_id, '+FLAGS', '\\Deleted')
+            mail.store(email_id, '+FLAGS', '\\Deleted')
         else:
             # Set the email as unread
             mail.store(email_id, '-FLAGS', '\\Seen')
+
     # Permanently remove deleted emails from the mailbox
-    # mail.expunge()
+    mail.expunge()
 
     # Logout from the email account
     mail.logout()
