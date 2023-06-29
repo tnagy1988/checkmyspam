@@ -77,7 +77,3 @@ def process_emails():
 
     # Logout from the email account
     mail.logout()
-
-
-# Call the function to process emails
-process_emails()
