@@ -1,1 +1,1 @@
-BLACKLISTED = ['.ru', '.su', '.xyz', '.top', '.click', '.zip', '.mov']
+BLACKLISTED = ['ru', 'su', 'xyz', 'top', 'click', 'zip', 'mov']
