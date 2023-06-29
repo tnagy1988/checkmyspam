@@ -1,0 +1,2 @@
+EMAIL_ADDRESS = 'toster1337@net.hr'
+PASSWORD = 'Toster123456789'

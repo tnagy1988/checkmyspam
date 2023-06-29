@@ -1,15 +1,18 @@
 import imaplib
 import email
-# import ipaddress
 import tldextract
+from blacklist import BLACKLISTED
+from credentials import (EMAIL_ADDRESS, PASSWORD)
+import smtplib
+from email.mime.text import MIMEText
 
 # IMAP server details for net.hr
 IMAP_SERVER = 'imap.net.hr'
 IMAP_PORT = 993
 
 # Net.hr email account credentials
-EMAIL_ADDRESS = 'toster1337@net.hr'
-PASSWORD = 'Toster123456789'
+EMAIL_ADDRESS = EMAIL_ADDRESS
+PASSWORD = PASSWORD
 
 def process_emails():
     # Connect to the IMAP server
@@ -32,6 +35,8 @@ def process_emails():
         _, email_data = mail.fetch(email_id, '(RFC822)')
         raw_email = email_data[0][1].decode('utf-8')
 
+        # print(raw_email)
+
         # Parse the email object
         email_message = email.message_from_string(raw_email)
 
@@ -45,39 +50,29 @@ def process_emails():
 
         # Extract the TLD (top-level domain) from the sender domain
         tld = tldextract.extract(sender_domain).suffix
-        
+
         spf_header = email_message.get('Received-SPF')
-        
+
         geolocation = email_message.get('X-GEO')
 
-        if subject == 'NOOB' or tld == 'ru':
-
-            # Extract the client IP from the headers
-            # client_ip = email_message.get('Client-Ip')
-
-            # Extract the SPF information if available
-            
-            # client_ip = ''
-            # if spf_header:
-            #     spf_fields = spf_header.split(';')
-            #     for field in spf_fields:
-            #         if 'client-ip=' in field:
-            #             client_ip = field.split('=')[1].strip()
-
-            # Extract the geolocation if available
-            
-
-            print('Subject:', subject)
-            print('Sender Email:', sender_email)
-            # print('Client-Ip', client_ip)
-            print('TLD:', tld)
-            print('Geolocation:', geolocation)
-            print('SPF:', spf_header)
-            print('------------------------------------')
-
-
-            # Move the email to the "NEMOZE" folder
-            # mail.copy(email_id, 'NEMOZE')
+        if spf_header and not 'Pass' in spf_header or tld in BLACKLISTED:
+            try:
+                sender_email = 'tostiranje@gmail.com'
+                receiver_email = 'tostiranje@gmail.com'
+                subject = 'Test Email'
+                message = 'This is a test email.'
+                msg = MIMEText(message)
+                msg['Subject'] = subject
+                msg['From'] = sender_email
+                msg['To'] = receiver_email
+                smtp = smtplib.SMTP('smtp.freesmtpservers.com', 25)
+                # smtp.starttls()
+                # smtp.login(EMAIL_ADDRESS, PASSWORD)
+                smtp.sendmail(sender_email, receiver_email, str(msg))
+                smtp.quit()
+                print("Email sent successfully")
+            except smtplib.SMTPException as e:
+                print("Error sending email:", str(e))
 
             # Delete the email
             # mail.store(email_id, '+FLAGS', '\\Deleted')
@@ -89,6 +84,7 @@ def process_emails():
 
     # Logout from the email account
     mail.logout()
+
 
 # Call the function to process emails
 process_emails()

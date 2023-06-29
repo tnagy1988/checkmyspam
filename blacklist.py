@@ -1,0 +1,1 @@
+BLACKLISTED = ['.ru', '.su', '.xyz', '.top', '.click', '.zip', '.mov', 'com']
