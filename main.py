@@ -51,8 +51,8 @@ def process_emails():
 
         if spf_header and not 'Pass' in spf_header or tld in BLACKLISTED:
             try:
-                sender_email = 'tostiranje@gmail.com'
-                receiver_email = 'tostiranje@gmail.com'
+                sender_email = 'toster496@gmail.com'
+                receiver_email = 'toster496@gmail.com'
                 subject = 'Test Email'
                 message = 'This is a test email.'
                 msg = MIMEText(message)
